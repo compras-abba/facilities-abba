@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Abba Facilities</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+  body{background:#f1f5f9;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+  /* HEADER */
+  header{background:#1a3068;color:white;padding:0 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,.3);flex-shrink:0;height:64px}
+  .logo{display:flex;align-items:center;gap:16px}
+  .logo-img{height:38px;width:auto}
+  .logo-divider{width:1px;height:32px;background:rgba(255,255,255,.2)}
+  .logo-text h1{font-size:16px;font-weight:700;letter-spacing:.3px;color:white}
+  .logo-text p{font-size:10px;color:#90b8e8;margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+  .btn-nova{background:#0091d5;color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+  .btn-nova:hover{background:#007ab8}
+  .btn-nova svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5}
+
+  /* KANBAN */
+  .board{display:flex;gap:12px;padding:16px;overflow-x:auto;flex:1;min-height:0}
+  .board::-webkit-scrollbar{height:6px}
+  .board::-webkit-scrollbar-track{background:#e2e8f0;border-radius:3px}
+  .board::-webkit-scrollbar-thumb{background:#90b8e8;border-radius:3px}
+
+  .col{flex-shrink:0;width:215px;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;max-height:100%}
+  .col-header{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700}
+  .col-header .count{background:rgba(255,255,255,.28);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:700}
+  .col-body{flex:1;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:100px;overflow-y:auto}
+  .col-body::-webkit-scrollbar{width:3px}
+  .col-body::-webkit-scrollbar-thumb{background:#90b8e8;border-radius:3px}
+
+  .col-Triagem .col-header{background:#9ca3af;color:white}           .col-Triagem .col-body{background:#f3f4f6}
+  .col-Diagnostico .col-header{background:#0091d5;color:white}       .col-Diagnostico .col-body{background:#e8f4fc}
+  .col-Agendamento .col-header{background:#eab308;color:white}        .col-Agendamento .col-body{background:#fefce8}
+  .col-AguardandoCompras .col-header{background:#f97316;color:white}  .col-AguardandoCompras .col-body{background:#fff7ed}
+  .col-Execucao .col-header{background:#1a3068;color:white}           .col-Execucao .col-body{background:#eef2fb}
+  .col-Validacao .col-header{background:#0891b2;color:white}          .col-Validacao .col-body{background:#ecfeff}
+  .col-Concluido .col-header{background:#16a34a;color:white}          .col-Concluido .col-body{background:#f0fdf4}
+  .col-Cancelado .col-header{background:#ef4444;color:white}          .col-Cancelado .col-body{background:#fef2f2}
+
+  /* CARD */
+  .card{background:white;border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid #f1f5f9;cursor:pointer;transition:all .15s;user-select:none}
+  .card:hover{box-shadow:0 3px 10px rgba(26,48,104,.15);border-color:#90b8e8;transform:translateY(-1px)}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:8px}
+  .badge-tipo{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+  .badge-Manutencao{background:#dbeafe;color:#1e40af}
+  .badge-Instalacao{background:#e0e7ff;color:#3730a3}
+  .badge-Limpeza{background:#ccfbf1;color:#0f766e}
+  .badge-Reparo{background:#fed7aa;color:#9a3412}
+  .badge-Licenca{background:#fce7f3;color:#9d174d}
+  .link-badge{color:#f97316;display:flex;align-items:center}
+  .link-badge svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2}
+  .card-desc{font-size:12px;color:#1f2937;font-weight:500;line-height:1.4;margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card-local{display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280;margin-bottom:7px}
+  .card-local svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0}
+  .card-bottom{display:flex;align-items:center;justify-content:space-between}
+  .badge-prio{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;border:1px solid}
+  .badge-Urgente{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+  .badge-Alta{background:#fed7aa;color:#9a3412;border-color:#fdba74}
+  .badge-Media{background:#fef9c3;color:#854d0e;border-color:#fde047}
+  .badge-Baixa{background:#f3f4f6;color:#4b5563;border-color:#d1d5db}
+  .card-resp{font-size:10px;color:#9ca3af;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .modal-overlay.open{opacity:1;pointer-events:all}
+  .modal{background:white;border-radius:14px;width:100%;max-width:600px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(20px);transition:transform .2s}
+  .modal-overlay.open .modal{transform:translateY(0)}
+  .modal-head{padding:20px 20px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .modal-head-left{flex:1}
+  .modal-badges{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+  .fase-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px}
+  .sc-badge{display:flex;align-items:center;gap:4px;font-size:11px;color:#ea580c;background:#fff7ed;padding:3px 10px;border-radius:99px;border:1px solid #fed7aa}
+  .sc-badge svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2}
+  .modal-title{font-size:17px;font-weight:700;color:#111827;line-height:1.3}
+  .modal-sub{font-size:12px;color:#6b7280;margin-top:4px}
+  .btn-close{background:none;border:none;color:#9ca3af;cursor:pointer;padding:4px;border-radius:6px;transition:color .15s;flex-shrink:0}
+  .btn-close:hover{color:#374151}
+  .btn-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
+
+  .modal-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+  .modal-body::-webkit-scrollbar{width:4px}
+  .modal-body::-webkit-scrollbar-thumb{background:#bfdbfe;border-radius:4px}
+  .field-label{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .field-value{font-size:13px;color:#1f2937;background:#f8fafc;border-radius:8px;padding:10px 12px;line-height:1.5}
+  .input-field{width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
+  .input-field:focus{border-color:#0091d5;box-shadow:0 0 0 3px rgba(0,145,213,.12)}
+  textarea.input-field{resize:none}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* Timeline */
+  .timeline{display:flex;flex-direction:column;gap:0}
+  .tl-item{display:flex;align-items:flex-start;gap:10px;padding-bottom:10px}
+  .tl-item:last-child{padding-bottom:0}
+  .tl-dot-wrap{display:flex;flex-direction:column;align-items:center;width:12px;flex-shrink:0}
+  .tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .tl-line{width:2px;flex:1;background:#e5e7eb;margin-top:3px;min-height:18px}
+  .tl-content{flex:1;padding-bottom:2px}
+  .tl-fase{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;display:inline-block}
+  .tl-date{font-size:10px;color:#9ca3af;margin-left:6px}
+  .tl-acao{font-size:11px;color:#4b5563;margin-top:3px}
+
+  /* Modal footer */
+  .modal-foot{border-top:1px solid #f1f5f9;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .action-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+  .btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2}
+  .btn-blue{background:#0091d5;color:white}    .btn-blue:hover{background:#007ab8}
+  .btn-navy{background:#1a3068;color:white}    .btn-navy:hover{background:#142554}
+  .btn-yellow{background:#ca8a04;color:white}  .btn-yellow:hover{background:#a16207}
+  .btn-orange{background:#f97316;color:white}  .btn-orange:hover{background:#ea580c}
+  .btn-cyan{background:#0891b2;color:white}    .btn-cyan:hover{background:#0e7490}
+  .btn-green{background:#16a34a;color:white}   .btn-green:hover{background:#15803d}
+  .btn-gray{background:#6b7280;color:white}    .btn-gray:hover{background:#4b5563}
+  .btn-outline{background:white;color:#374151;border:1px solid #d1d5db} .btn-outline:hover{background:#f9fafb}
+  .btn-danger-txt{background:none;border:none;color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;padding:8px 10px;border-radius:8px;transition:background .15s}
+  .btn-danger-txt:hover{background:#fef2f2}
+  .right-btns{display:flex;gap:8px;margin-left:auto}
+  .aguard-notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#9a3412;line-height:1.5}
+
+  /* FORM MODAL */
+  .form-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .form-overlay.open{opacity:1;pointer-events:all}
+  .form-modal{background:white;border-radius:14px;width:100%;max-width:520px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(20px);transition:transform .2s}
+  .form-overlay.open .form-modal{transform:translateY(0)}
+  .form-head{padding:18px 20px 14px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+  .form-head h2{font-size:15px;font-weight:700;color:#111827}
+  .form-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .form-foot{border-top:1px solid #f1f5f9;padding:14px 20px;display:flex;justify-content:flex-end;gap:8px}
+  .prio-btns{display:flex;gap:8px}
+  .prio-btn{flex:1;padding:8px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:white;color:#6b7280;transition:all .15s}
+  .prio-btn:hover{border-color:#9ca3af}
+  .prio-btn.active-Baixa{background:#6b7280;color:white;border-color:#6b7280}
+  .prio-btn.active-Media{background:#eab308;color:white;border-color:#eab308}
+  .prio-btn.active-Alta{background:#f97316;color:white;border-color:#f97316}
+  .prio-btn.active-Urgente{background:#dc2626;color:white;border-color:#dc2626}
+  select.input-field{background:white;cursor:pointer}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:999;transform:translateY(80px);opacity:0;transition:all .25s}
+  .toast.show{transform:translateY(0);opacity:1}
+  .toast.success{background:#166534;border-left:4px solid #4ade80}
+  .toast.error{background:#991b1b;border-left:4px solid #f87171}
+
+  .drag-hint{font-size:10px;color:#9ca3af;text-align:center;padding:4px 0 0;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <!-- Logo ABBA SVG inline -->
+    <svg height="40" viewBox="0 0 240 72" xmlns="http://www.w3.org/2000/svg">
+      <!-- "A" esquerda -->
+      <polygon points="6,62 26,10 34,10 14,62" fill="#0091d5"/>
+      <!-- "A" direita -->
+      <polygon points="46,62 26,10 34,10 54,62" fill="#0091d5"/>
+      <!-- Crossbar -->
+      <polygon points="12,44 48,44 46,52 14,52" fill="#0091d5"/>
+      <!-- Swoosh branco (diagonal clara sobre o A) -->
+      <polygon points="4,52 38,14 46,14 12,52" fill="white" opacity="0.85"/>
+      <!-- Swoosh escuro menor -->
+      <polygon points="10,56 30,28 36,28 16,56" fill="#5bb8e8" opacity="0.6"/>
+      <!-- Texto ABBA em branco -->
+      <text x="68" y="51" font-family="'Segoe UI',Arial,sans-serif" font-size="32" font-weight="800" letter-spacing="2" fill="white">ABBA</text>
+    </svg>
+    <div class="logo-divider"></div>
+    <div class="logo-text">
+      <h1>Facilities</h1>
+      <p>Gestão de Solicitações</p>
+    </div>
+  </div>
+  <button class="btn-nova" onclick="openForm()">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Nova Solicitação
+  </button>
+</header>
+
+<div class="board" id="board"></div>
+<div class="drag-hint">← Role para ver todas as colunas</div>
+
+<!-- MODAL DETALHES -->
+<div class="modal-overlay" id="detailOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-badges" id="modalBadges"></div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="btn-close" onclick="closeDetailModal()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- MODAL FORM NOVA -->
+<div class="form-overlay" id="formOverlay" onclick="closeFormOverlay(event)">
+  <div class="form-modal" onclick="event.stopPropagation()">
+    <div class="form-head">
+      <h2>Nova Solicitação de Facilities</h2>
+      <button class="btn-close" onclick="closeForm()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-body">
+      <div class="grid2">
+        <div><div class="field-label">Solicitante *</div><input class="input-field" id="f-nome" placeholder="Seu nome"/></div>
+        <div><div class="field-label">Email</div><input class="input-field" id="f-email" type="email" placeholder="email@empresa.com"/></div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="field-label">Setor *</div>
+          <select class="input-field" id="f-setor">
+            <option value="">Selecione...</option>
+            <option>Producao</option><option>Manutencao</option><option>Administrativo</option>
+            <option>Logistica</option><option>Qualidade</option><option>Comercial</option><option>Diretoria</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Tipo *</div>
+          <select class="input-field" id="f-tipo">
+            <option value="">Selecione...</option>
+            <option value="Manutencao">Manutenção</option>
+            <option value="Instalacao">Instalação</option>
+            <option value="Limpeza">Limpeza</option>
+            <option value="Reparo">Reparo</option>
+            <option value="Licenca">Licença</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div><div class="field-label">Local / Área *</div><input class="input-field" id="f-local" placeholder="Ex: Galpão A"/></div>
+        <div><div class="field-label">Detalhe do Local</div><input class="input-field" id="f-localdet" placeholder="Ex: Próx. porta 3"/></div>
+      </div>
+      <div>
+        <div class="field-label">Descrição *</div>
+        <textarea class="input-field" id="f-desc" rows="4" placeholder="Descreva o problema ou serviço necessário com detalhes..."></textarea>
+      </div>
+      <div>
+        <div class="field-label">Prioridade</div>
+        <div class="prio-btns">
+          <button class="prio-btn" onclick="setPrio('Baixa')" id="pb-Baixa">Baixa</button>
+          <button class="prio-btn active-Media" onclick="setPrio('Media')" id="pb-Media">Média</button>
+          <button class="prio-btn" onclick="setPrio('Alta')" id="pb-Alta">Alta</button>
+          <button class="prio-btn" onclick="setPrio('Urgente')" id="pb-Urgente">Urgente</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-foot">
+      <button class="btn btn-outline" onclick="closeForm()">Cancelar</button>
+      <button class="btn btn-navy" onclick="submitForm()">Abrir Solicitação</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLUNAS = [
+  {id:'Triagem',          label:'Triagem',         cls:'col-Triagem'},
+  {id:'Diagnostico',      label:'Diagnóstico',      cls:'col-Diagnostico'},
+  {id:'Agendamento',      label:'Agendamento',      cls:'col-Agendamento'},
+  {id:'AguardandoCompras',label:'Aguard. Compras',  cls:'col-AguardandoCompras', icon:true},
+  {id:'Execucao',         label:'Execução',         cls:'col-Execucao'},
+  {id:'Validacao',        label:'Validação',        cls:'col-Validacao'},
+  {id:'Concluido',        label:'Concluído',        cls:'col-Concluido'},
+  {id:'Cancelado',        label:'Cancelado',        cls:'col-Cancelado'},
+];
+
+const TIPO_LABELS = {Manutencao:'Manutenção',Instalacao:'Instalação',Limpeza:'Limpeza',Reparo:'Reparo',Licenca:'Licença'};
+const FASE_LABELS = {Triagem:'Triagem',Diagnostico:'Diagnóstico',Agendamento:'Agendamento',AguardandoCompras:'Aguardando Compras',Execucao:'Execução',Validacao:'Validação',Concluido:'Concluído',Cancelado:'Cancelado'};
+
+const FASE_STYLE = {
+  Triagem:           'background:#f3f4f6;color:#374151',
+  Diagnostico:       'background:#dbeafe;color:#1e40af',
+  Agendamento:       'background:#fef9c3;color:#854d0e',
+  AguardandoCompras: 'background:#fed7aa;color:#9a3412',
+  Execucao:          'background:#e8eef9;color:#1a3068',
+  Validacao:         'background:#cffafe;color:#155e75',
+  Concluido:         'background:#dcfce7;color:#166534',
+  Cancelado:         'background:#fee2e2;color:#991b1b',
+};
+
+const FASE_DOT = {
+  Triagem:'#9ca3af', Diagnostico:'#0091d5', Agendamento:'#eab308',
+  AguardandoCompras:'#f97316', Execucao:'#1a3068', Validacao:'#0891b2',
+  Concluido:'#16a34a', Cancelado:'#ef4444',
+};
+
+let solicitacoes = [
+  {id:'f001',tipo:'Manutencao',descricao:'Ar condicionado do escritório não está funcionando, temperatura elevada prejudicando o trabalho.',local_area:'Escritório 2º andar',prioridade:'Alta',fase_atual:'Triagem',solicitante_nome:'Ana Souza',setor:'Administrativo',historico:[{fase:'Triagem',data:'2026-06-25T09:00:00',acao:'Solicitação criada'}]},
+  {id:'f002',tipo:'Reparo',descricao:'Vazamento no telhado do galpão B próximo à linha 3.',local_area:'Galpão B',local_detalhe:'Linha 3 - próx. prensa',prioridade:'Urgente',fase_atual:'Diagnostico',solicitante_nome:'Carlos Lima',setor:'Producao',responsavel_nome:'Técnico João',diagnostico:'Telha danificada por chuva de granizo. Necessário reposição de 3 telhas.',historico:[{fase:'Triagem',data:'2026-06-24T08:00:00',acao:'Solicitação criada'},{fase:'Diagnostico',data:'2026-06-24T10:30:00',acao:'Atribuído para diagnóstico'}]},
+  {id:'f003',tipo:'Limpeza',descricao:'Limpeza geral pós-reforma no refeitório.',local_area:'Refeitório',prioridade:'Media',fase_atual:'Agendamento',solicitante_nome:'Fátima Costa',setor:'Administrativo',responsavel_nome:'Equipe Limpeza',historico:[{fase:'Triagem',data:'2026-06-23T07:00:00',acao:'Solicitação criada'},{fase:'Diagnostico',data:'2026-06-23T09:00:00',acao:'Diagnóstico realizado'},{fase:'Agendamento',data:'2026-06-23T11:00:00',acao:'Agendamento solicitado'}]},
+  {id:'f004',tipo:'Instalacao',descricao:'Instalação de 3 câmeras de segurança no estacionamento externo.',local_area:'Estacionamento',prioridade:'Media',fase_atual:'AguardandoCompras',solicitante_nome:'Roberto Alves',setor:'Administrativo',responsavel_nome:'Técnico Pedro',solicitacao_compra_id:'a1b2c3d4-e5f6-7890',historico:[{fase:'Triagem',data:'2026-06-22T08:00:00',acao:'Solicitação criada'},{fase:'Diagnostico',data:'2026-06-22T10:00:00',acao:'Diagnóstico realizado'},{fase:'AguardandoCompras',data:'2026-06-22T14:00:00',acao:'Requer cotação externa — SC criada no Compras'}]},
+  {id:'f005',tipo:'Manutencao',descricao:'Troca de lâmpadas queimadas no corredor principal e sala de reunião.',local_area:'Corredor Principal',prioridade:'Baixa',fase_atual:'Execucao',solicitante_nome:'Maria Oliveira',setor:'Administrativo',responsavel_nome:'Técnico João',historico:[{fase:'Triagem',data:'2026-06-21T08:00:00',acao:'Solicitação criada'},{fase:'Diagnostico',data:'2026-06-21T09:30:00',acao:'Diagnóstico realizado'},{fase:'Agendamento',data:'2026-06-21T11:00:00',acao:'Agendado para 26/06'},{fase:'Execucao',data:'2026-06-26T08:00:00',acao:'Execução iniciada'}]},
+  {id:'f006',tipo:'Reparo',descricao:'Reparo na bomba hidráulica da linha de produção 1. Equipamento parado.',local_area:'Galpão A',local_detalhe:'Linha 1 — junto à prensa',prioridade:'Urgente',fase_atual:'Validacao',solicitante_nome:'Marcos Pereira',setor:'Producao',responsavel_nome:'Eng. Silva',diagnostico:'Vedação desgastada + rolamento com folga. Peças substituídas.',historico:[{fase:'Triagem',data:'2026-06-20T07:00:00',acao:'Solicitação criada'},{fase:'Diagnostico',data:'2026-06-20T08:30:00',acao:'Diagnóstico: vedação e rolamento'},{fase:'AguardandoCompras',data:'2026-06-20T10:00:00',acao:'Aguardando peças via Compras'},{fase:'Execucao',data:'2026-06-25T08:00:00',acao:'Peças recebidas — execução iniciada'},{fase:'Validacao',data:'2026-06-25T16:00:00',acao:'Enviado para validação'}]},
+  {id:'f007',tipo:'Licenca',descricao:'Renovação do alvará de funcionamento — vencimento junho/2026.',local_area:'Jurídico / Administrativo',prioridade:'Alta',fase_atual:'Concluido',solicitante_nome:'Diretora Paula',setor:'Diretoria',responsavel_nome:'Adm. Lucas',historico:[{fase:'Triagem',data:'2026-06-01T08:00:00',acao:'Solicitação criada'},{fase:'Diagnostico',data:'2026-06-01T10:00:00',acao:'Documentação levantada'},{fase:'Execucao',data:'2026-06-10T09:00:00',acao:'Protocolo realizado na prefeitura'},{fase:'Concluido',data:'2026-06-20T17:00:00',acao:'Alvará renovado e entregue'}]},
+  {id:'f008',tipo:'Limpeza',descricao:'Dedetização preventiva trimestral em todo o complexo industrial.',local_area:'Complexo Industrial',prioridade:'Media',fase_atual:'Cancelado',solicitante_nome:'Supervisora Rosa',setor:'Qualidade',historico:[{fase:'Triagem',data:'2026-06-15T08:00:00',acao:'Solicitação criada'},{fase:'Cancelado',data:'2026-06-16T14:00:00',acao:'Cancelado — reagendado para julho'}]},
+];
+
+let currentSol = null;
+let selectedPrio = 'Media';
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLUNAS.forEach(col => {
+    const items = solicitacoes.filter(s => s.fase_atual === col.id);
+    const div = document.createElement('div');
+    div.className = `col ${col.cls}`;
+    const linkIcon = col.icon
+      ? `<svg style="width:12px;height:12px;fill:none;stroke:white;stroke-width:2;margin-right:4px;vertical-align:-1px" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>` : '';
+    div.innerHTML = `
+      <div class="col-header">
+        <span>${linkIcon}${col.label}</span>
+        <span class="count">${items.length}</span>
+      </div>
+      <div class="col-body" id="col-${col.id}">
+        ${items.map(s => renderCard(s)).join('')}
+      </div>`;
+    board.appendChild(div);
+  });
+  solicitacoes.forEach(s => {
+    const el = document.getElementById('card-' + s.id);
+    if (el) el.addEventListener('click', () => openModal(s.id));
+  });
+}
+
+function renderCard(s) {
+  const scIcon = s.solicitacao_compra_id
+    ? `<span class="link-badge" title="SC vinculada ao Compras"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>` : '';
+  return `
+    <div class="card" id="card-${s.id}">
+      <div class="card-top">
+        <span class="badge-tipo badge-${s.tipo}">${TIPO_LABELS[s.tipo] || s.tipo}</span>
+        ${scIcon}
+      </div>
+      <div class="card-desc">${s.descricao}</div>
+      <div class="card-local">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        ${s.local_area}
+      </div>
+      <div class="card-bottom">
+        <span class="badge-prio badge-${s.prioridade}">${s.prioridade}</span>
+        ${s.responsavel_nome ? `<span class="card-resp">${s.responsavel_nome}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function openModal(id) {
+  const s = solicitacoes.find(x => x.id === id);
+  if (!s) return;
+  currentSol = s;
+  const fase = s.fase_atual;
+  const finalizado = fase === 'Concluido' || fase === 'Cancelado';
+
+  document.getElementById('modalBadges').innerHTML =
+    `<span class="fase-badge" style="${FASE_STYLE[fase]}">${FASE_LABELS[fase]}</span>` +
+    (s.solicitacao_compra_id ? `<span class="sc-badge"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>SC: ${s.solicitacao_compra_id.substring(0,8)}</span>` : '');
+
+  document.getElementById('modalTitle').textContent = `${TIPO_LABELS[s.tipo] || s.tipo} — ${s.local_area}`;
+  document.getElementById('modalSub').textContent = `${s.solicitante_nome} · ${s.setor}${s.local_detalhe ? ' · ' + s.local_detalhe : ''}`;
+
+  let body = `<div><div class="field-label">Descrição</div><div class="field-value">${s.descricao}</div></div>`;
+
+  if (!finalizado) {
+    body += `<div class="grid2">
+      <div><div class="field-label">Responsável</div><input class="input-field" id="m-resp" value="${s.responsavel_nome || ''}" placeholder="Nome do responsável"/></div>
+      <div><div class="field-label">Email Responsável</div><input class="input-field" id="m-email" type="email" value="${s.responsavel_email || ''}" placeholder="email@empresa.com"/></div>
+    </div>`;
+    if (fase !== 'Triagem')
+      body += `<div><div class="field-label">Diagnóstico</div><textarea class="input-field" id="m-diag" rows="2" placeholder="Descreva o diagnóstico...">${s.diagnostico || ''}</textarea></div>`;
+    if (fase === 'AguardandoCompras')
+      body += `<div class="aguard-notice">⏳ <strong>Aguardando Compras.</strong> Esta solicitação gerou automaticamente uma Solicitação de Compra.${s.solicitacao_compra_id ? '<br>SC vinculada: <strong>' + s.solicitacao_compra_id.substring(0,8) + '</strong>' : ''}<br>Quando aprovada/entregue, clique em "Compras Aprovado" para liberar a execução.</div>`;
+    body += `<div><div class="field-label">Observações</div><textarea class="input-field" id="m-obs" rows="2" placeholder="Observações adicionais...">${s.observacoes || ''}</textarea></div>`;
+  } else {
+    if (s.diagnostico)    body += `<div><div class="field-label">Diagnóstico</div><div class="field-value">${s.diagnostico}</div></div>`;
+    if (s.observacoes)    body += `<div><div class="field-label">Observações</div><div class="field-value">${s.observacoes}</div></div>`;
+    if (s.responsavel_nome) body += `<div><div class="field-label">Responsável</div><div class="field-value">${s.responsavel_nome}</div></div>`;
+  }
+
+  if (s.historico && s.historico.length) {
+    body += `<div><div class="field-label">Histórico</div><div class="timeline">`;
+    s.historico.forEach((h, i) => {
+      const isLast = i === s.historico.length - 1;
+      body += `<div class="tl-item">
+        <div class="tl-dot-wrap">
+          <div class="tl-dot" style="background:${FASE_DOT[h.fase] || '#9ca3af'}"></div>
+          ${!isLast ? '<div class="tl-line"></div>' : ''}
+        </div>
+        <div class="tl-content">
+          <span class="tl-fase" style="${FASE_STYLE[h.fase] || ''}">${FASE_LABELS[h.fase] || h.fase}</span>
+          <span class="tl-date">${new Date(h.data).toLocaleString('pt-BR')}</span>
+          <div class="tl-acao">${h.acao}</div>
+        </div>
+      </div>`;
+    });
+    body += '</div></div>';
+  }
+
+  document.getElementById('modalBody').innerHTML = body;
+
+  let actions = '<div class="action-btns">';
+  if (fase === 'Triagem')
+    actions += `<button class="btn btn-blue" onclick="mudarFase('Diagnostico','Atribuído para diagnóstico')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Atribuir e Diagnosticar</button>`;
+  if (fase === 'Diagnostico')
+    actions +=
+      `<button class="btn btn-yellow" onclick="mudarFase('Agendamento','Agendamento solicitado')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Agendar Execução</button>
+       <button class="btn btn-orange" onclick="mudarFase('AguardandoCompras','Requer cotação externa — SC criada no Compras')"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>Requer Cotação Externa</button>`;
+  if (fase === 'Agendamento')
+    actions += `<button class="btn btn-navy" onclick="mudarFase('Execucao','Execução iniciada')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Iniciar Execução</button>`;
+  if (fase === 'AguardandoCompras')
+    actions += `<button class="btn btn-navy" onclick="mudarFase('Execucao','Compras aprovado — execução iniciada')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Compras Aprovado — Iniciar Execução</button>`;
+  if (fase === 'Execucao')
+    actions += `<button class="btn btn-cyan" onclick="mudarFase('Validacao','Enviado para validação')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Concluir e Validar</button>`;
+  if (fase === 'Validacao')
+    actions +=
+      `<button class="btn btn-green" onclick="mudarFase('Concluido','Conclusão confirmada')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Confirmar Conclusão</button>
+       <button class="btn btn-gray" onclick="mudarFase('Execucao','Devolvido para reexecução')">Devolver para Execução</button>`;
+  actions += '</div>';
+
+  let rightBtns = '<div class="right-btns">';
+  if (!finalizado)
+    rightBtns += `<button class="btn-danger-txt" onclick="mudarFase('Cancelado','Solicitação cancelada')">Cancelar</button>
+    <button class="btn btn-navy" onclick="salvarModal()">Salvar</button>`;
+  rightBtns += `<button class="btn btn-outline" onclick="closeDetailModal()">Fechar</button></div>`;
+  document.getElementById('modalFoot').innerHTML = actions + rightBtns;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeModal(e) { if (e.target === document.getElementById('detailOverlay')) closeDetailModal(); }
+function closeDetailModal() { document.getElementById('detailOverlay').classList.remove('open'); currentSol = null; }
+
+function mudarFase(novaFase, acao) {
+  if (!currentSol) return;
+  const s = solicitacoes.find(x => x.id === currentSol.id);
+  if (!s) return;
+  s.fase_atual = novaFase;
+  s.historico = [...(s.historico || []), { fase: novaFase, data: new Date().toISOString(), acao }];
+  closeDetailModal();
+  renderBoard();
+  showToast(`Movido para: ${FASE_LABELS[novaFase]}`, 'success');
+}
+
+function salvarModal() {
+  if (!currentSol) return;
+  const s = solicitacoes.find(x => x.id === currentSol.id);
+  const resp = document.getElementById('m-resp');
+  const diag = document.getElementById('m-diag');
+  const obs  = document.getElementById('m-obs');
+  if (resp) s.responsavel_nome = resp.value;
+  if (diag) s.diagnostico = diag.value;
+  if (obs)  s.observacoes  = obs.value;
+  closeDetailModal();
+  renderBoard();
+  showToast('Salvo com sucesso', 'success');
+}
+
+function openForm() { document.getElementById('formOverlay').classList.add('open'); }
+function closeForm() { document.getElementById('formOverlay').classList.remove('open'); resetForm(); }
+function closeFormOverlay(e) { if (e.target === document.getElementById('formOverlay')) closeForm(); }
+
+function resetForm() {
+  ['f-nome','f-email','f-local','f-localdet','f-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('f-setor').value = '';
+  document.getElementById('f-tipo').value  = '';
+  selectedPrio = 'Media';
+  ['Baixa','Media','Alta','Urgente'].forEach(p => {
+    document.getElementById('pb-' + p).className = 'prio-btn' + (p === 'Media' ? ' active-Media' : '');
+  });
+}
+
+function setPrio(p) {
+  selectedPrio = p;
+  ['Baixa','Media','Alta','Urgente'].forEach(pp => {
+    document.getElementById('pb-' + pp).className = 'prio-btn' + (pp === p ? ' active-' + pp : '');
+  });
+}
+
+function submitForm() {
+  const nome  = document.getElementById('f-nome').value.trim();
+  const setor = document.getElementById('f-setor').value;
+  const tipo  = document.getElementById('f-tipo').value;
+  const local = document.getElementById('f-local').value.trim();
+  const desc  = document.getElementById('f-desc').value.trim();
+  if (!nome || !setor || !tipo || !local || !desc) { showToast('Preencha todos os campos obrigatórios', 'error'); return; }
+  const nova = {
+    id: 'f' + Date.now(), tipo, descricao: desc, local_area: local,
+    local_detalhe: document.getElementById('f-localdet').value,
+    prioridade: selectedPrio, fase_atual: 'Triagem',
+    solicitante_nome: nome, setor,
+    solicitante_email: document.getElementById('f-email').value,
+    historico: [{ fase: 'Triagem', data: new Date().toISOString(), acao: 'Solicitação criada' }],
+  };
+  solicitacoes.unshift(nova);
+  closeForm();
+  renderBoard();
+  showToast('Solicitação aberta com sucesso!', 'success');
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetailModal(); closeForm(); } });
+
+renderBoard();
+</script>
+</body>
+</html>
