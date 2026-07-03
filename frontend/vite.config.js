@@ -12,4 +12,7 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    __BACKEND_URL__: JSON.stringify(process.env.VITE_BACKEND_URL || ''),
+  },
 });
