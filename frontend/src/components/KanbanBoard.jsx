@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link2 } from 'lucide-react';
 import SolicitacaoCard from './SolicitacaoCard';
 import toast from 'react-hot-toast';
+import { listarSolicitacoes } from '../api';
 
 const COLUNAS = [
   { id: 'Triagem',           label: 'Triagem',           cor: 'bg-gray-200',   header: 'bg-gray-400 text-white' },
@@ -15,9 +16,22 @@ const COLUNAS = [
   { id: 'Cancelado',         label: 'Cancelado',         cor: 'bg-red-50',     header: 'bg-red-500 text-white' },
 ];
 
-export default function KanbanBoard({ solicitacoes, onAtualizar, onAbrirModal }) {
+export default function KanbanBoard({ solicitacoes, setSolicitacoes, onAtualizar, onAbrirModal, usuario }) {
+  const carregar = useCallback(async () => {
+    try {
+      const dados = await listarSolicitacoes();
+      setSolicitacoes(dados);
+    } catch {
+      toast.error('Erro ao carregar solicitações');
+    }
+  }, [setSolicitacoes]);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
   const porFase = COLUNAS.reduce((acc, col) => {
-    acc[col.id] = solicitacoes.filter(s => s.fase_atual === col.id);
+    acc[col.id] = (solicitacoes || []).filter(s => s.fase_atual === col.id);
     return acc;
   }, {});
 

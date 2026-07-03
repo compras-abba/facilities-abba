@@ -1,64 +1,55 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { login, getMe } from '../api';
-import logoAbba from '../assets/logo-abba.png';
+import { useState } from 'react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { supabase } from '../lib/supabase'
+import logoAbba from '../assets/logo-abba.png'
 
-export default function LoginForm({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [erro, setErro] = useState('');
-  const [carregando, setCarregando] = useState(false);
+export default function LoginForm() {
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [mostrarSenha, setMostrarSenha] = useState(false)
+  const [erro, setErro] = useState('')
+  const [carregando, setCarregando] = useState(false)
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setErro('');
-    setCarregando(true);
-    try {
-      await login(email, senha);
-      const usuario = await getMe();
-      onLogin(usuario);
-    } catch (err) {
-      setErro(err?.response?.data?.message || 'Email ou senha inválidos.');
-    } finally {
-      setCarregando(false);
-    }
+    e.preventDefault()
+    setErro('')
+    setCarregando(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
+    if (error) setErro('Email ou senha inválidos.')
+    setCarregando(false)
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#1a3068]">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
-        {/* Logo ABBA */}
         <div className="flex flex-col items-center mb-6">
           <img src={logoAbba} alt="ABBA" className="h-16 object-contain mb-2" />
           <p className="text-sm text-gray-400 font-medium tracking-wider">Facilities</p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
             <input
               type="email"
               autoComplete="email"
+              required
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a3068] focus:border-transparent"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="seu@email.com"
-              required
             />
           </div>
-
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Senha</label>
             <div className="relative">
               <input
                 type={mostrarSenha ? 'text' : 'password'}
                 autoComplete="current-password"
+                required
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a3068] focus:border-transparent"
                 value={senha}
                 onChange={e => setSenha(e.target.value)}
                 placeholder="••••••••"
-                required
               />
               <button
                 type="button"
@@ -69,13 +60,11 @@ export default function LoginForm({ onLogin }) {
               </button>
             </div>
           </div>
-
           {erro && (
             <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {erro}
             </p>
           )}
-
           <button
             type="submit"
             disabled={carregando}
@@ -87,5 +76,5 @@ export default function LoginForm({ onLogin }) {
         </form>
       </div>
     </div>
-  );
+  )
 }

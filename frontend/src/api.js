@@ -1,67 +1,117 @@
-import axios from 'axios';
-
-const BACKEND = import.meta.env.VITE_BACKEND_URL || '';
-const api = axios.create({ baseURL: `${BACKEND}/api` });
-
-// Interceptor: adiciona token em todo request
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('facilities_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import { supabase } from './lib/supabase'
 
 // Auth
 export async function login(email, senha) {
-  const { data } = await api.post('/auth/login', { email, senha });
-  if (data.token) {
-    localStorage.setItem('facilities_token', data.token);
-  }
-  return data;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
+  if (error) throw error
+  return data
 }
 
-export async function getMe() {
-  const { data } = await api.get('/auth/me');
-  return data;
+export async function logout() {
+  await supabase.auth.signOut()
 }
 
-export function logout() {
-  localStorage.removeItem('facilities_token');
+export async function getSession() {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
 }
 
+export async function getPerfil(userId) {
+  const { data } = await supabase
+    .from('usuarios_facilities')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  return data
+}
+
+// Usuários
 export async function listarUsuarios() {
-  const { data } = await api.get('/auth/usuarios');
-  return data;
-}
-
-export async function criarUsuario(dados) {
-  const { data } = await api.post('/auth/usuarios', dados);
-  return data;
+  const { data } = await supabase
+    .from('usuarios_facilities')
+    .select('id, nome, email, perfil, ativo, created_at')
+    .order('nome')
+  return data || []
 }
 
 export async function atualizarUsuario(id, dados) {
-  const { data } = await api.patch(`/auth/usuarios/${id}`, dados);
-  return data;
+  const { data, error } = await supabase
+    .from('usuarios_facilities')
+    .update(dados)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function criarUsuario(dados) {
+  const { data, error } = await supabase.functions.invoke('create-user', {
+    body: dados
+  })
+  if (error) throw error
+  return data
 }
 
 // Solicitações
 export async function listarSolicitacoes(filtros = {}) {
-  const { data } = await api.get('/solicitacoes', { params: filtros });
-  return data;
+  let query = supabase
+    .from('solicitacoes_facilities')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (filtros.fase) query = query.eq('fase_atual', filtros.fase)
+  const { data } = await query
+  return data || []
 }
 
 export async function criarSolicitacao(dados) {
-  const { data } = await api.post('/solicitacoes', dados);
-  return data;
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data, error } = await supabase
+    .from('solicitacoes_facilities')
+    .insert({
+      ...dados,
+      solicitante_id: user.id,
+      fase_atual: 'Triagem',
+      historico: [{ fase: 'Triagem', data: new Date().toISOString(), usuario: dados.solicitante_nome }]
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return data
 }
 
-export async function atualizarSolicitacao(id, dados) {
-  const { data } = await api.patch(`/solicitacoes/${id}`, dados);
-  return data;
+export async function atualizarSolicitacao(id, dados, usuarioNome) {
+  let updateData = { ...dados }
+  if (dados.fase_atual) {
+    const { data: atual } = await supabase
+      .from('solicitacoes_facilities')
+      .select('historico')
+      .eq('id', id)
+      .single()
+    const historico = [...(atual?.historico || []), {
+      fase: dados.fase_atual,
+      data: new Date().toISOString(),
+      usuario: usuarioNome || ''
+    }]
+    updateData.historico = historico
+    if (dados.fase_atual === 'Concluido') {
+      updateData.data_conclusao = new Date().toISOString()
+    }
+  }
+  const { data, error } = await supabase
+    .from('solicitacoes_facilities')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
 }
 
 export async function deletarSolicitacao(id) {
-  const { data } = await api.delete(`/solicitacoes/${id}`);
-  return data;
+  const { error } = await supabase
+    .from('solicitacoes_facilities')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }

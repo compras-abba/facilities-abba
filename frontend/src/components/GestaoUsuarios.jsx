@@ -56,7 +56,12 @@ export default function GestaoUsuarios({ onFechar }) {
       setFormAberto(false);
       toast.success('Usuário criado com sucesso');
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Erro ao criar usuário');
+      const msg = err?.message || '';
+      if (msg.includes('FunctionsHttpError') || msg.includes('not found') || msg.includes('404')) {
+        toast.error("Configure a Edge Function 'create-user' no Supabase para criar usuários.");
+      } else {
+        toast.error(msg || 'Erro ao criar usuário');
+      }
     } finally {
       setSalvando(false);
     }
