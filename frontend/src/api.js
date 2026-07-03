@@ -46,7 +46,7 @@ export async function atualizarUsuario(id, dados) {
 }
 
 export async function criarUsuario(dados) {
-  const { data, error } = await supabase.functions.invoke('create-user', {
+  const { data, error } = await supabase.functions.invoke('clever-handler', {
     body: dados
   })
   if (error) throw error
