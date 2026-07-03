@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Setor {
+  Producao
+  Manutencao
+  Administrativo
+  Logistica
+  Qualidade
+  Comercial
+  Diretoria
+}
+
+enum TipoFacilities {
+  Manutencao
+  Instalacao
+  Limpeza
+  Reparo
+  Licenca
+}
+
+enum FaseFacilities {
+  Triagem
+  Diagnostico
+  Agendamento
+  AguardandoCompras
+  Execucao
+  Validacao
+  Concluido
+  Cancelado
+}
+
+enum Prioridade {
+  Baixa
+  Media
+  Alta
+  Urgente
+}
+
+enum PerfilUsuario {
+  Admin
+  Responsavel
+  Solicitante
+}
+
+model Usuario {
+  id         String         @id @default(uuid())
+  nome       String         @db.VarChar(100)
+  email      String         @unique @db.VarChar(150)
+  senha_hash String
+  perfil     PerfilUsuario  @default(Solicitante)
+  ativo      Boolean        @default(true)
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+
+  @@map("usuarios_facilities")
+}
+
+model SolicitacaoFacilities {
+  id                    String          @id @default(uuid())
+  solicitante_nome      String          @db.VarChar(100)
+  solicitante_email     String?         @db.VarChar(150)
+  solicitante_id        String?         @db.VarChar(36)
+  setor                 Setor
+  tipo                  TipoFacilities
+  local_area            String          @db.VarChar(100)
+  local_detalhe         String?         @db.VarChar(200)
+  descricao             String
+  prioridade            Prioridade      @default(Media)
+  fase_atual            FaseFacilities  @default(Triagem)
+  responsavel_nome      String?         @db.VarChar(100)
+  responsavel_email     String?         @db.VarChar(150)
+  diagnostico           String?
+  observacoes           String?
+  data_agendamento      DateTime?
+  data_execucao         DateTime?
+  data_conclusao        DateTime?
+  requer_cotacao_externa Boolean        @default(false)
+  solicitacao_compra_id String?         @db.VarChar(36)
+  anexos                String[]
+  historico             Json[]
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+
+  @@map("solicitacoes_facilities")
+}
