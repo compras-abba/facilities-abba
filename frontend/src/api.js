@@ -92,11 +92,21 @@ export async function atualizarSolicitacao(id, dados, usuarioNome) {
 
     // Notificação por email
     try {
+      let solicitante_email = null
+      if (atual?.solicitante_id) {
+        const { data: perfil } = await supabase
+          .from('usuarios_facilities')
+          .select('email')
+          .eq('id', atual.solicitante_id)
+          .single()
+        solicitante_email = perfil?.email || null
+      }
       await supabase.functions.invoke('send-notification', {
         body: {
           fase_nova: dados.fase_atual,
           solicitacao: { ...atual, ...dados },
           usuario_nome: usuarioNome || '',
+          solicitante_email,
         }
       })
     } catch {}
