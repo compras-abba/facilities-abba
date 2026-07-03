@@ -45,14 +45,6 @@ export async function atualizarUsuario(id, dados) {
   return data
 }
 
-export async function criarUsuario(dados) {
-  const { data, error } = await supabase.functions.invoke('clever-handler', {
-    body: dados
-  })
-  if (error) throw error
-  return data
-}
-
 // Solicitações
 export async function listarSolicitacoes(filtros = {}) {
   let query = supabase
