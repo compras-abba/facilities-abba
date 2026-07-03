@@ -85,7 +85,7 @@ export async function atualizarSolicitacao(id, dados, usuarioNome) {
   if (dados.fase_atual) {
     const { data: atual } = await supabase
       .from('solicitacoes_facilities')
-      .select('historico')
+      .select('*')
       .eq('id', id)
       .single()
     const historico = [...(atual?.historico || []), {
@@ -97,6 +97,17 @@ export async function atualizarSolicitacao(id, dados, usuarioNome) {
     if (dados.fase_atual === 'Concluido') {
       updateData.data_conclusao = new Date().toISOString()
     }
+
+    // Notificação por email
+    try {
+      await supabase.functions.invoke('send-notification', {
+        body: {
+          fase_nova: dados.fase_atual,
+          solicitacao: { ...atual, ...dados },
+          usuario_nome: usuarioNome || '',
+        }
+      })
+    } catch {}
   }
   const { data, error } = await supabase
     .from('solicitacoes_facilities')
