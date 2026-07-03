@@ -26,7 +26,9 @@ export default function Header({ usuario, onLogout, onNova }) {
       <header className="bg-[#1a3068] text-white px-6 py-3 flex items-center justify-between shadow-lg shrink-0">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <img src={logoAbba} alt="ABBA" className="h-9 object-contain brightness-0 invert" />
+          <div className="bg-white rounded-lg px-2 py-1">
+            <img src={logoAbba} alt="ABBA" className="h-7 object-contain" />
+          </div>
           <p className="text-blue-300 text-xs font-medium tracking-wider">Facilities</p>
         </div>
 

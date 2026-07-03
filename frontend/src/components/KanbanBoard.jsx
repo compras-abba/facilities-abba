@@ -11,7 +11,6 @@ const COLUNAS = [
   { id: 'Agendamento',       label: 'Agendamento',       cor: 'bg-yellow-50',  header: 'bg-yellow-500 text-white' },
   { id: 'AguardandoCompras', label: 'Aguard. Compras',   cor: 'bg-orange-50',  header: 'bg-orange-500 text-white' },
   { id: 'Execucao',          label: 'Execução',          cor: 'bg-purple-50',  header: 'bg-purple-600 text-white' },
-  { id: 'Validacao',         label: 'Validação',         cor: 'bg-cyan-50',    header: 'bg-cyan-600 text-white' },
   { id: 'Concluido',         label: 'Concluído',         cor: 'bg-green-50',   header: 'bg-green-600 text-white' },
   { id: 'Cancelado',         label: 'Cancelado',         cor: 'bg-red-50',     header: 'bg-red-500 text-white' },
 ];
