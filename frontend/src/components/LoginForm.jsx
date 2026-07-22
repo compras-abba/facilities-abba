@@ -8,6 +8,7 @@ export default function LoginForm() {
   const [senha, setSenha] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [erro, setErro] = useState('')
+  const [sucesso, setSucesso] = useState('')
   const [carregando, setCarregando] = useState(false)
 
   async function handleLogin(e) {
@@ -16,6 +17,18 @@ export default function LoginForm() {
     setCarregando(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
     if (error) setErro('Email ou senha inválidos.')
+    setCarregando(false)
+  }
+
+  async function handleEsqueciSenha() {
+    if (!email) return setErro('Digite seu email acima primeiro.')
+    setErro('')
+    setCarregando(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://compras-abba.github.io/facilities-abba/',
+    })
+    if (error) setErro('Erro ao enviar email. Verifique o endereço.')
+    else setSucesso('Email de redefinição enviado! Verifique sua caixa de entrada.')
     setCarregando(false)
   }
 
@@ -67,6 +80,9 @@ export default function LoginForm() {
           {erro && (
             <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{erro}</p>
           )}
+          {sucesso && (
+            <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{sucesso}</p>
+          )}
 
           <button
             type="submit"
@@ -76,6 +92,16 @@ export default function LoginForm() {
             {carregando && <Loader2 size={15} className="animate-spin" />}
             Entrar
           </button>
+
+          <div className="text-center mt-2">
+            <button
+              type="button"
+              onClick={handleEsqueciSenha}
+              className="text-xs text-[#1a3068] hover:underline"
+            >
+              Esqueci minha senha
+            </button>
+          </div>
         </form>
       </div>
     </div>
